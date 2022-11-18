@@ -1,11 +1,20 @@
-import React, { useState, useEffect } from "react";
-import { Contract, ContractClient } from "../libs/contraption";
-import { POLLFACTORY_ID, POLLFACTORY_ABI } from "../contracts/abi/abi";
+import { useState, useEffect } from "react";
+import Web3 from "web3";
+import { POLLFACTORY_ADDRESS, POLLFACTORY_ABI } from "../abi";
 import { Banner, Polls, ViewPoll, SetupDialog } from "./homePage/index";
 
 const HomePage = ({ signer, setJoinedPoll }) => {
-  const pollFactory = new Contract(POLLFACTORY_ID, POLLFACTORY_ABI);
-  const pollFactoryClient = new ContractClient(POLLFACTORY_ID, POLLFACTORY_ABI);
+  const options = {
+    from: signer.selectedAddress,
+    gas: 4000000,
+    gasPrice: "50000000000",
+  };
+  const web3 = new Web3(Web3.givenProvider);
+  const pollFactory = new web3.eth.Contract(
+    POLLFACTORY_ABI,
+    POLLFACTORY_ADDRESS,
+    options
+  );
   const [setupDialog, toggleSetupDialog] = useState(false);
   const [pollCount, setPollCount] = useState(null);
   const [polls, setPolls] = useState([]);
@@ -15,59 +24,39 @@ const HomePage = ({ signer, setJoinedPoll }) => {
   useEffect(() => {
     (async () => {
       if (pollCount != null) return;
-      let { 0: pollCount_ } = await pollFactoryClient.getPollCount.call()({
-        gas: 1000000,
-        maxQueryPay: 1.5,
-      });
-      let { 0: polls_ } = await pollFactoryClient.fetchPolls.call([
-        pollCount_,
-        5,
-      ])({
-        gas: 1000000,
-        maxQueryPay: 1.5,
-      });
+      let pollCount_ = await pollFactory.methods.getPollCount().call();
+      let polls_ = await pollFactory.methods.fetchPolls(pollCount_, 1).call();
       setEarliestPoll(+polls_[polls_.length - 1][7]);
       setPolls(polls_);
       setPollCount(pollCount_);
     })();
-  }, []);
+  }, [pollCount, pollFactory.methods]);
 
   async function loadMore() {
     if (earliestPoll === 1) return;
     let quantity = earliestPoll > 5 ? 5 : Math.abs(0 - earliestPoll) - 1;
-    let { 0: polls_ } = await pollFactoryClient.fetchPolls.call([
-      earliestPoll - 1,
-      quantity,
-    ])({
-      gas: 1000000,
-      maxQueryPay: 1.5,
-    });
+    let { 0: polls_ } = await pollFactory.methods
+      .fetchPolls(earliestPoll - 1, quantity)
+      .call();
     let _polls = [...polls].concat(polls_);
     setEarliestPoll(+polls_[polls_.length - 1][7]);
     setPolls(_polls);
   }
 
   async function getLatest() {
-    let { 0: pollCount_ } = await pollFactoryClient.getPollCount.call()({
-      gas: 1000000,
-      maxQueryPay: 1.5,
-    });
+    let { 0: pollCount_ } = await pollFactory.methods.getPollCount().call();
     if (+pollCount_ > +pollCount) {
       setPollCount(pollCount_);
-      let { 0: polls_ } = await pollFactoryClient.fetchPolls.call([
-        pollCount_,
-        pollCount_ - pollCount,
-      ])({
-        gas: 1000000,
-        maxQueryPay: 1.5,
-      });
+      let { 0: polls_ } = await pollFactory.methods
+        .fetchPolls(pollCount_, pollCount_ - pollCount)
+        .call();
       let _polls = [...polls_, ...polls];
       setPolls(_polls);
     }
   }
 
   return (
-    <React.Fragment>
+    <>
       {setupDialog ? (
         <SetupDialog
           toggleSetupDialog={toggleSetupDialog}
@@ -87,14 +76,14 @@ const HomePage = ({ signer, setJoinedPoll }) => {
             loadMore={loadMore}
           />
           <ViewPoll
-            pollFactoryClient={pollFactoryClient}
+            pollFactory={pollFactory}
             selectedPoll={selectedPoll}
             setSelectedPoll={setSelectedPoll}
             setJoinedPoll={setJoinedPoll}
           />
         </div>
       </div>
-    </React.Fragment>
+    </>
   );
 };
 

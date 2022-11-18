@@ -1,10 +1,9 @@
-import React, { useRef } from "react";
-import { AccountId } from "@hashgraph/sdk";
+import { useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 
 const ViewPoll = ({
-  pollFactoryClient,
+  pollFactory,
   selectedPoll,
   setSelectedPoll,
   setJoinedPoll,
@@ -21,22 +20,16 @@ const ViewPoll = ({
   let pollId = selectedPoll[7];
 
   async function viewPoll() {
-    let { 0: poll } = await pollFactoryClient.queryPoll.call([
-      input.current.value,
-    ])({
-      gas: 1000000,
-      maxQueryPay: 1.5,
-    });
+    const poll = await pollFactory.methods
+      .queryPoll(input.current.value)
+      .call();
     setSelectedPoll(poll);
   }
 
   async function joinPoll(pollId) {
-    let { 0: address } = await pollFactoryClient.getPollAddress.call([pollId])({
-      gas: 1000000,
-      maxQueryPay: 1.5,
-    });
+    const address = await pollFactory.methods.getPollAddress(pollId).call();
     setJoinedPoll({
-      address: AccountId.fromSolidityAddress(address).toString(),
+      address: address,
       details: selectedPoll,
     });
   }
@@ -66,14 +59,14 @@ const ViewPoll = ({
               Duration: <b>Timeless</b>
             </p>
           ) : (
-            <React.Fragment>
+            <>
               <p>
                 Starts: <b>{new Date(startEnd[0] * 1000).toDateString()}</b>
               </p>
               <p>
                 Ends: <b>{new Date(startEnd[1] * 1000).toDateString()}</b>
               </p>
-            </React.Fragment>
+            </>
           )}
           <p>
             Votes: <b>{votes}</b>

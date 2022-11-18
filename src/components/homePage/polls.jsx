@@ -15,14 +15,14 @@ const Polls = ({
     >
       <TopBar toggleSetupDialog={toggleSetupDialog} getLatest={getLatest} />
       <div className="relative overflow-y-auto h-full w-full">
-        {polls.map(poll => {
+        {polls.map((poll) => {
           let titleDesc = poll[0];
           let startEnd = poll[1];
           let creationTime = poll[2];
           let status = poll[3];
           let votes = poll[4];
           let isOpen = poll[5];
-          let isEligible = poll[6];
+          // let isEligible = poll[6];
           let pollId = poll[7];
           return (
             <PollEntry

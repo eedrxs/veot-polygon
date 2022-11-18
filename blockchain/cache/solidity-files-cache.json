@@ -1,0 +1,190 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "/home/eedris/Documents/projects/building/veot-polygon/blockchain/contracts/Poll.sol": {
+      "lastModificationDate": 1668766868298,
+      "contentHash": "12418b1dcb1767e50ccec6f6a66ee40e",
+      "sourceName": "contracts/Poll.sol",
+      "solcConfig": {
+        "version": "0.8.9",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./PollData.sol",
+        "./utils/PollUtils.sol",
+        "./utils/Counters.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.9"
+      ],
+      "artifacts": [
+        "Poll"
+      ]
+    },
+    "/home/eedris/Documents/projects/building/veot-polygon/blockchain/contracts/PollData.sol": {
+      "lastModificationDate": 1668766870598,
+      "contentHash": "f1e669ae78d864ed94d30b120a2544f9",
+      "sourceName": "contracts/PollData.sol",
+      "solcConfig": {
+        "version": "0.8.9",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.9"
+      ],
+      "artifacts": [
+        "PollData"
+      ]
+    },
+    "/home/eedris/Documents/projects/building/veot-polygon/blockchain/contracts/utils/PollUtils.sol": {
+      "lastModificationDate": 1668766868222,
+      "contentHash": "e9926cf91465040fdd733175ce80085c",
+      "sourceName": "contracts/utils/PollUtils.sol",
+      "solcConfig": {
+        "version": "0.8.9",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../PollData.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.9"
+      ],
+      "artifacts": [
+        "PollUtils"
+      ]
+    },
+    "/home/eedris/Documents/projects/building/veot-polygon/blockchain/contracts/utils/Counters.sol": {
+      "lastModificationDate": 1668766868270,
+      "contentHash": "a758b15110b49833c7912a1de7bc8683",
+      "sourceName": "contracts/utils/Counters.sol",
+      "solcConfig": {
+        "version": "0.8.9",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.9"
+      ],
+      "artifacts": [
+        "Counters"
+      ]
+    },
+    "/home/eedris/Documents/projects/building/veot-polygon/blockchain/contracts/PollFactory.sol": {
+      "lastModificationDate": 1668766871870,
+      "contentHash": "302501e20cb2498b2c69131e7abf7662",
+      "sourceName": "contracts/PollFactory.sol",
+      "solcConfig": {
+        "version": "0.8.9",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./Poll.sol",
+        "./PollData.sol",
+        "./utils/Counters.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.9"
+      ],
+      "artifacts": [
+        "PollFactory"
+      ]
+    }
+  }
+}

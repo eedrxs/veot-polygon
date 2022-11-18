@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { Contract, ContractClient } from "../libs/contraption";
-import { POLL_ABI } from "../contracts/abi/abi";
+import { useState, useEffect } from "react";
+import Web3 from "web3";
+import { POLL_ABI } from "../abi";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowLeft,
@@ -28,8 +28,13 @@ ChartJS.register(
 );
 
 const PollPage = ({ details, address, setJoinedPoll, signer }) => {
-  const pollContract = new Contract(address, POLL_ABI);
-  const pollContractClient = new ContractClient(address, POLL_ABI);
+  const options = {
+    from: signer.selectedAddress,
+    gas: 4000000,
+    gasPrice: "50000000000",
+  };
+  const web3 = new Web3(Web3.givenProvider);
+  const pollContract = new web3.eth.Contract(POLL_ABI, address, options);
   const [totalVotes, setTotalVotes] = useState(null);
   const [categories, setCategories] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
@@ -100,11 +105,9 @@ const PollPage = ({ details, address, setJoinedPoll, signer }) => {
 
   useEffect(() => {
     (async () => {
-      let { 0: totalVotes, 1: categories } =
-        await pollContractClient.getOptionsAndVotes.call()({
-          gas: 1000000,
-          maxQueryPay: 1.5,
-        });
+      let { 0: totalVotes, 1: categories } = await pollContract.methods
+        .getOptionsAndVotes()
+        .call();
       setVotes(new Array(categories.length).fill(undefined));
       setTotalVotes(totalVotes);
       setCategories(categories);
@@ -112,15 +115,13 @@ const PollPage = ({ details, address, setJoinedPoll, signer }) => {
   }, []);
 
   function completedSelection() {
-    return votes.some(categoryVote => categoryVote === undefined);
+    return votes.some((categoryVote) => categoryVote === undefined);
   }
 
   async function getCurrentVotes() {
-    let { 0: totalVotes, 1: currentVotes } =
-      await pollContractClient.getCurrentVotes.call()({
-        gas: 1000000,
-        maxQueryPay: 1.5,
-      });
+    let { 0: totalVotes, 1: currentVotes } = await pollContract.methods
+      .getCurrentVotes()
+      .call();
     let categories_ = JSON.parse(JSON.stringify(categories));
     for (let i = 0; i < currentVotes.length; i++) {
       for (let j = 0; j < currentVotes[i].length; j++) {
@@ -160,7 +161,7 @@ const PollPage = ({ details, address, setJoinedPoll, signer }) => {
             </div>
             <div className="relative w-full mt-2">
               <div className="absolute flex gap-x-2 w-full top-0 left-0">
-                {categories.map(category => (
+                {categories.map((category) => (
                   <div
                     key={category[0]}
                     className={
@@ -172,10 +173,10 @@ const PollPage = ({ details, address, setJoinedPoll, signer }) => {
                     onClick={() => {
                       setCurrentPage(+category[0]);
                     }}
-                    onMouseOver={event => {
+                    onMouseOver={(event) => {
                       event.target.style.height = "6px";
                     }}
-                    onMouseLeave={event => {
+                    onMouseLeave={(event) => {
                       event.target.style.height = "4px";
                     }}
                   ></div>
@@ -254,18 +255,11 @@ const PollPage = ({ details, address, setJoinedPoll, signer }) => {
             }
             disabled={completedSelection()}
             onClick={async () => {
-              try {
-                await pollContract.vote.call([votes])({
-                  signer: signer,
-                  gas: 1000000,
-                  maxTxFee: 0.75,
-                });
-              } catch (error) {
-                console.log(error);
-                alert("It seems you've already voted.");
-              }
-
-              getCurrentVotes();
+              pollContract.methods
+                .vote(votes)
+                .send()
+                .then(getCurrentVotes())
+                .catch(() => alert("It seems you've already voted."));
             }}
           >
             Vote
@@ -281,7 +275,7 @@ const PollPage = ({ details, address, setJoinedPoll, signer }) => {
         }
       >
         {categories.length !== 0 ? (
-          <React.Fragment>
+          <>
             <div className="flex justify-between items-center text-2xl px-5 py-2 border-b-2 border-white border-opacity-20 text-white text-opacity-60">
               <p>{dropdownOption}</p>
               <button
@@ -310,7 +304,7 @@ const PollPage = ({ details, address, setJoinedPoll, signer }) => {
                 ) : null}
               </button>
             </div>
-            {(key => {
+            {((key) => {
               switch (key) {
                 case "Stats":
                   return (
@@ -337,7 +331,7 @@ const PollPage = ({ details, address, setJoinedPoll, signer }) => {
                           <b>Duration:</b> Timeless
                         </p>
                       ) : (
-                        <React.Fragment>
+                        <>
                           <p className="mb-2">
                             <b>Starts:</b>{" "}
                             {new Date(startEnd[0] * 1000).toDateString() +
@@ -350,7 +344,7 @@ const PollPage = ({ details, address, setJoinedPoll, signer }) => {
                               ",   " +
                               new Date(startEnd[1] * 1000).toLocaleTimeString()}
                           </p>
-                        </React.Fragment>
+                        </>
                       )}
                       <p className="mb-2">
                         <b>Participation:</b> {isOpen ? "Open" : "Closed"}
@@ -363,7 +357,7 @@ const PollPage = ({ details, address, setJoinedPoll, signer }) => {
                       </p>
                       <p className="mb-2">
                         <b>Status:</b>{" "}
-                        {(statusCode => {
+                        {((statusCode) => {
                           switch (statusCode) {
                             case "0":
                               return "Upcoming";
@@ -386,7 +380,7 @@ const PollPage = ({ details, address, setJoinedPoll, signer }) => {
                   break;
               }
             })(dropdownOption)}
-          </React.Fragment>
+          </>
         ) : null}
       </div>
     </main>
@@ -395,11 +389,11 @@ const PollPage = ({ details, address, setJoinedPoll, signer }) => {
 
 export const BarChart = ({ category, options, colorArray }) => {
   let chartData = {
-    labels: options.map(option => option[2]),
+    labels: options.map((option) => option[2]),
     datasets: [
       {
         label: "Votes", //options[1],
-        data: options.map(option => option[1]),
+        data: options.map((option) => option[1]),
         backgroundColor: options.map((option, index) => colorArray[index + 8]),
       },
     ],

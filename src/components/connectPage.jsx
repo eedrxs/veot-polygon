@@ -1,91 +1,13 @@
-import React from "react";
-import { HashConnect } from "hashconnect";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTwitter, faGithub } from "@fortawesome/free-brands-svg-icons";
-import logo from "../img/logo.svg";
-
-let saveData = {
-  topic: "",
-  pairingString: "",
-  privateKey: "",
-  pairedWalletData: null,
-  pairedAccounts: [],
-};
-let appMetadata = {
-  name: "Veot",
-  description: "A decentralised polling platform built on the Hedera Hashgraph",
-  icon: "https://www.hashpack.app/img/logo.svg",
-};
-
-const loadLocalData = () => {
-  let foundData = localStorage.getItem("veotMetadata");
-
-  if (foundData) {
-    saveData = JSON.parse(foundData);
-    return true;
-  } else return false;
-};
+import { getEthereumSigner } from "../service/contractService";
+// import logo from "../img/logo.svg";
 
 const ConnectPage = ({ setSigner }) => {
-  async function connectToHashPack() {
-    //create the hashconnect instance
-    let hashconnect = new HashConnect();
-
-    hashconnect.foundExtensionEvent.once(extensionMetadata => {
-      hashconnect.connectToLocalWallet(
-        saveData.pairingString,
-        extensionMetadata
-      );
-    });
-
-    hashconnect.pairingEvent.once(pairingData => {
-      saveData.pairedWalletData = pairingData.metadata;
-      pairingData.accountIds.forEach(id => {
-        if (saveData.pairedAccounts.indexOf(id) === -1)
-          saveData.pairedAccounts.push(id);
-      });
-
-      localStorage.setItem("veotMetadata", JSON.stringify(saveData));
-      let provider = hashconnect.getProvider(
-        "testnet",
-        saveData.topic,
-        saveData.pairedAccounts[0]
-      );
-      let signer = hashconnect.getSigner(provider);
-      setSigner(signer);
-    });
-
-    if (!loadLocalData()) {
-      //first init and store the private for later
-      let initData = await hashconnect.init(appMetadata);
-      saveData.privateKey = initData.privKey;
-
-      //then connect, storing the new topic for later
-      const state = await hashconnect.connect();
-      saveData.topic = state.topic;
-
-      //generate a pairing string, which you can display and generate a QR code from
-      saveData.pairingString = hashconnect.generatePairingString(
-        state,
-        "testnet",
-        false
-      );
-
-      //find any supported local wallets
-      hashconnect.findLocalWallets();
-    } else {
-      //use loaded data for initialization + connection
-      await hashconnect.init(appMetadata, saveData.privateKey);
-      await hashconnect.connect(saveData.topic, saveData.pairedWalletData);
-      let provider = hashconnect.getProvider(
-        "testnet",
-        saveData.topic,
-        saveData.pairedAccounts[0]
-      );
-      let signer = hashconnect.getSigner(provider);
-      setSigner(signer);
-    }
-  }
+  const getSigner = async () => {
+    const signer = await getEthereumSigner();
+    setSigner(signer);
+  };
 
   return (
     <div className="grid grid-cols-connectpage-sm lg:grid-cols-connectpage h-screen w-screen">
@@ -101,10 +23,10 @@ const ConnectPage = ({ setSigner }) => {
         </p>
         <button
           type="button"
-          onClick={connectToHashPack}
+          onClick={getSigner}
           className="bg-gold hover:bg-dgold shadow-goldbutton font-medium py-5 px-12 rounded-3xl mb-10"
         >
-          Connect to HashPack Wallet
+          Connect to MetaMask Wallet
         </button>
         <div className="flex justify-center">
           <a

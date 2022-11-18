@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { AccountId } from "@hashgraph/sdk";
+import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faFileArrowUp,
@@ -15,7 +14,7 @@ const Participation = ({ isClosed, setIsClosed, addresses, setAddresses }) => {
   });
 
   return (
-    <React.Fragment>
+    <>
       <h1 className="text-white text-3xl font-medium mt-6 mb-4">
         Participation
       </h1>
@@ -66,14 +65,10 @@ const Participation = ({ isClosed, setIsClosed, addresses, setAddresses }) => {
                 const reader = new FileReader();
 
                 reader.onload = event => {
-                  let [accountIds] = Object.values(
+                  let [addresses] = Object.values(
                     JSON.parse(event.target.result)
                   );
-                  let accountAddresses = accountIds.map(
-                    accountId =>
-                      `0x${AccountId.fromString(accountId).toSolidityAddress()}`
-                  );
-                  setAddresses(accountAddresses);
+                  setAddresses(addresses);
                   changeCurrentIcon({ icon: faCircleCheck, spin: false });
                 };
 
@@ -97,7 +92,7 @@ const Participation = ({ isClosed, setIsClosed, addresses, setAddresses }) => {
           />
         )}
       </div>
-    </React.Fragment>
+    </>
   );
 };
 

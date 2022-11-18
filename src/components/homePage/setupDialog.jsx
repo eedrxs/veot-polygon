@@ -70,16 +70,7 @@ const SetupDialog = ({ toggleSetupDialog, signer, pollFactory, getLatest }) => {
       return Object.values(category);
     });
     console.log({ categories_ })
-    await pollFactory.createPoll.call([
-      titleDesc_,
-      startEnd_,
-      categories_,
-      addresses_,
-    ])({
-      signer: signer,
-      gas: 1000000,
-      maxTxFee: Math.ceil((size.width * size.depth * 20) / 100),
-    });
+    await pollFactory.methods.createPoll(titleDesc_, startEnd_, categories_, addresses_).send()
     getLatest();
     toggleSetupDialog(false);
   };
