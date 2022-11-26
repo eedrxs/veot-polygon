@@ -45,7 +45,7 @@ const PollEntry = ({
                   : "  bg-red-500")
               }
             >
-              {(statusCode => {
+              {((statusCode) => {
                 switch (statusCode) {
                   case "0":
                     return "Upcoming";
@@ -65,7 +65,7 @@ const PollEntry = ({
               {isOpen ? "Open" : "Closed"}
             </span>
             <span className="inline-block">
-              {startEnd.length ? "Timed" : "Timeless"}
+              {startEnd?.length ? "Timed" : "Timeless"}
             </span>
           </div>
         </div>

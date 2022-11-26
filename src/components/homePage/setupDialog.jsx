@@ -36,13 +36,13 @@ const SetupDialog = ({ toggleSetupDialog, signer, pollFactory, getLatest }) => {
     setCategories(c);
   };
 
-  const handleAddCategory = category => {
+  const handleAddCategory = (category) => {
     let c = [...categories];
     c.push({ id: null, textContent: category, options: [] });
     setCategories(c);
   };
 
-  const handleRemoveCategory = categoryId => {
+  const handleRemoveCategory = (categoryId) => {
     let c = [...categories];
     c.splice(categoryId, 1);
     setCategories(c);
@@ -51,28 +51,35 @@ const SetupDialog = ({ toggleSetupDialog, signer, pollFactory, getLatest }) => {
   const handleFinishSetup = async () => {
     const titleDesc_ = Object.values(titleDesc);
     const startEnd_ = isTimed
-      ? Object.values(duration).map(date =>
-        parseInt(new Date(date).getTime() / 1000.0)
-      )
+      ? Object.values(duration).map((date) =>
+          parseInt(new Date(date).getTime() / 1000.0)
+        )
       : [];
     const addresses_ = isClosed ? [...addresses] : [];
-    let size = { width: 0, depth: 0 };
+    // let size = { width: 0, depth: 0 };
     const categories_ = categories.map((category, index) => {
-      size.width += 1;
-      let depth = 0;
+      // size.width += 1;
+      // let depth = 0;
       category.id = index;
       category.options = category.options.map((option, index) => {
-        depth += 1;
+        // depth += 1;
         option.id = index;
         return Object.values(option);
       });
-      if (depth > size.depth) size.depth = depth;
+      // if (depth > size.depth) size.depth = depth;
       return Object.values(category);
     });
-    console.log({ categories_ })
-    await pollFactory.methods.createPoll(titleDesc_, startEnd_, categories_, addresses_).send()
-    getLatest();
-    toggleSetupDialog(false);
+
+    pollFactory.methods
+      .createPoll(titleDesc_, startEnd_, categories_, addresses_)
+      .send()
+      .then(() => {
+        getLatest();
+        toggleSetupDialog(false);
+      })
+      .catch(() => {
+        alert("Failed to setup poll.");
+      });
   };
 
   return (
@@ -98,7 +105,7 @@ const SetupDialog = ({ toggleSetupDialog, signer, pollFactory, getLatest }) => {
             onClick={() => toggleSetupDialog(false)}
           />
         </div>
-        {(page => {
+        {((page) => {
           switch (page) {
             case 1:
               return (

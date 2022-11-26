@@ -31,7 +31,7 @@ const PollPage = ({ details, address, setJoinedPoll, signer }) => {
   const options = {
     from: signer.selectedAddress,
     gas: 4000000,
-    gasPrice: "50000000000",
+    gasPrice: "5000000000",
   };
   const web3 = new Web3(Web3.givenProvider);
   const pollContract = new web3.eth.Contract(POLL_ABI, address, options);
@@ -128,9 +128,31 @@ const PollPage = ({ details, address, setJoinedPoll, signer }) => {
         categories_[i][2][j][1] = currentVotes[i][j];
       }
     }
+
     setCategories(categories_);
     setTotalVotes(totalVotes);
   }
+
+  const vote = () => {
+    pollContract.events.voteCasted("voteCasted", {}, () => getCurrentVotes());
+    pollContract.methods
+      .vote(votes)
+      .send()
+      .on("receipt", () => getCurrentVotes())
+      .on("confirmation", () => getCurrentVotes())
+      .then(() => getCurrentVotes())
+      .catch(() => alert("It seems you've already voted."));
+
+    // pollContract.methods
+    //   .vote(votes)
+    //   .send()
+    //   .then(() => {
+    //     getCurrentVotes();
+    //   })
+    //   .catch(() => {
+    //     alert("It seems you've already voted.");
+    //   });
+  };
 
   return (
     <main className="h-screen w-screen fixed top-0 left-0">
@@ -254,13 +276,7 @@ const PollPage = ({ details, address, setJoinedPoll, signer }) => {
               (completedSelection() ? " bg-red-400" : " bg-green")
             }
             disabled={completedSelection()}
-            onClick={async () => {
-              pollContract.methods
-                .vote(votes)
-                .send()
-                .then(getCurrentVotes())
-                .catch(() => alert("It seems you've already voted."));
-            }}
+            onClick={() => vote()}
           >
             Vote
           </button>

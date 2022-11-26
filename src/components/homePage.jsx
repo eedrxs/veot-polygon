@@ -7,7 +7,7 @@ const HomePage = ({ signer, setJoinedPoll }) => {
   const options = {
     from: signer.selectedAddress,
     gas: 4000000,
-    gasPrice: "50000000000",
+    gasPrice: "5000000000",
   };
   const web3 = new Web3(Web3.givenProvider);
   const pollFactory = new web3.eth.Contract(
@@ -25,7 +25,7 @@ const HomePage = ({ signer, setJoinedPoll }) => {
     (async () => {
       if (pollCount != null) return;
       let pollCount_ = await pollFactory.methods.getPollCount().call();
-      let polls_ = await pollFactory.methods.fetchPolls(pollCount_, 1).call();
+      let polls_ = await pollFactory.methods.fetchPolls(pollCount_, 5).call();
       setEarliestPoll(+polls_[polls_.length - 1][7]);
       setPolls(polls_);
       setPollCount(pollCount_);
@@ -35,7 +35,7 @@ const HomePage = ({ signer, setJoinedPoll }) => {
   async function loadMore() {
     if (earliestPoll === 1) return;
     let quantity = earliestPoll > 5 ? 5 : Math.abs(0 - earliestPoll) - 1;
-    let { 0: polls_ } = await pollFactory.methods
+    let polls_ = await pollFactory.methods
       .fetchPolls(earliestPoll - 1, quantity)
       .call();
     let _polls = [...polls].concat(polls_);
@@ -44,10 +44,10 @@ const HomePage = ({ signer, setJoinedPoll }) => {
   }
 
   async function getLatest() {
-    let { 0: pollCount_ } = await pollFactory.methods.getPollCount().call();
+    let pollCount_ = await pollFactory.methods.getPollCount().call();
     if (+pollCount_ > +pollCount) {
       setPollCount(pollCount_);
-      let { 0: polls_ } = await pollFactory.methods
+      let polls_ = await pollFactory.methods
         .fetchPolls(pollCount_, pollCount_ - pollCount)
         .call();
       let _polls = [...polls_, ...polls];
